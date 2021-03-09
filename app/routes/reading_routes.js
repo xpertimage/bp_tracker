@@ -59,9 +59,11 @@ router.get('/readings/:id', requireToken, (req, res, next) => {
 // POST /readings
 router.post('/readings', requireToken, (req, res, next) => {
   // set owner of new reading to be current user
-  req.body.reading.owner = req.user.id
 
-  Reading.create(req.body.reading)
+  req.body.owner = req.user._id
+  console.log('What is req.body: ', req.body)
+
+  Reading.create(req.body)
     // respond to succesful `create` with status 201 and JSON of new "reading"
     .then(reading => {
       res.status(201).json({ reading: reading.toObject() })
