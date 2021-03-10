@@ -30,6 +30,7 @@ const router = express.Router()
 // INDEX
 // GET /readings
 router.get('/readings', requireToken, (req, res, next) => {
+  req.body.owner = req.user._id
   Reading.find()
     .then(readings => {
       // `readings` will be an array of Mongoose documents
@@ -46,6 +47,7 @@ router.get('/readings', requireToken, (req, res, next) => {
 // SHOW
 // GET /readings/5a7db6c74d55bc51bdf39793
 router.get('/readings/:id', requireToken, (req, res, next) => {
+  req.body.owner = req.user._id
   // req.params.id will be set based on the `:id` in the route
   Reading.findById(req.params.id)
     .then(handle404)
@@ -79,7 +81,9 @@ router.post('/readings', requireToken, (req, res, next) => {
 router.patch('/readings/:id', requireToken, removeBlanks, (req, res, next) => {
   // if the client attempts to change the `owner` property by including a new
   // owner, prevent that by deleting that key/value pair
-  delete req.body.reading.owner
+  // console.log(req)
+  delete req.body.id
+  // console.log('req.body= ', req.body)
 
   Reading.findById(req.params.id)
     .then(handle404)
@@ -89,7 +93,7 @@ router.patch('/readings/:id', requireToken, removeBlanks, (req, res, next) => {
       requireOwnership(req, reading)
 
       // pass the result of Mongoose's `.update` to the next `.then`
-      return reading.updateOne(req.body.reading)
+      return reading.updateOne(req.body)
     })
     // if that succeeded, return 204 and no JSON
     .then(() => res.sendStatus(204))
