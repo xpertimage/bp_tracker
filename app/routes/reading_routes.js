@@ -2,10 +2,11 @@
 const express = require('express')
 // Passport docs: http://www.passportjs.org/docs/
 const passport = require('passport')
+const mongoose = require('mongoose')
 
 // pull in Mongoose model for readings
 const Reading = require('../models/reading')
-
+const User = require('../models/user')
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
 const customErrors = require('../../lib/custom_errors')
@@ -31,12 +32,14 @@ const router = express.Router()
 // GET /readings
 router.get('/readings', requireToken, (req, res, next) => {
   req.body.owner = req.user._id
-  Reading.find()
-    .then(readings => {
+
+  User.findById(req.user._id)
+    .then(user => {
+      console.log(User)
       // `readings` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one
-      return readings.map(reading => reading.toObject())
+      return user.readings.map(reading => reading.toObject())
     })
     // respond with status 200 and JSON of the readings
     .then(readings => res.status(200).json({ readings: readings }))
@@ -64,15 +67,16 @@ router.post('/readings', requireToken, (req, res, next) => {
 
   req.body.owner = req.user._id
   console.log('What is req.body: ', req.body)
-
-  Reading.create(req.body)
-    // respond to succesful `create` with status 201 and JSON of new "reading"
-    .then(reading => {
-      res.status(201).json({ reading: reading.toObject() })
+  // First find the signedIn user's document
+  User.findById(req.user._id)
+    .then(user => {
+      user.readings.push(req.body)
+      user.save(err => {
+        if(!err) {
+          res.status(201).json({ reading: req.body })
+        }
+      })
     })
-    // if an error occurs, pass it off to our error handler
-    // the error handler needs the error message and the `res` object so that it
-    // can send an error message back to the client
     .catch(next)
 })
 

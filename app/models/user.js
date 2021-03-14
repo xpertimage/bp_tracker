@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-
+const Reading = require('./reading')
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -10,8 +10,28 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  token: String
-}, {
+  token: String,
+
+  readings: [
+    {type: new mongoose.Schema({
+     systolic: {
+       type: Number,
+       required: true
+     },
+     diastolic: {
+       type: Number,
+       required: true
+     },
+     pulse: {
+       type: Number,
+       required: true
+     }
+   }, {
+     timestamps: true
+   })}
+  ]
+},
+{
   timestamps: true,
   toObject: {
     // remove `hashedPassword` field when we call `.toObject`
