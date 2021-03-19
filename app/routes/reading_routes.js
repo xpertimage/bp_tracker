@@ -49,17 +49,6 @@ router.get('/readings', requireToken, (req, res, next) => {
 
 // SHOW
 // GET /readings/5a7db6c74d55bc51bdf39793
-// router.get('/readings/:id', requireToken, (req, res, next) => {
-//   req.body.owner = req.user._id
-//   // req.params.id will be set based on the `:id` in the route
-//   Reading.findById(req.params.id)
-//     .then(handle404)
-//     // if `findById` is succesful, respond with 200 and "reading" JSON
-//     .then(reading => res.status(200).json({ reading: reading.toObject() }))
-//     // if an error occurs, pass it to the handler
-//     .catch(next)
-// })
-
 router.get('/readings/:id', requireToken, (req, res, next) => {
   req.body.owner = req.user._id
   // console.log('router.get(/readings/:ID)')
@@ -70,7 +59,9 @@ router.get('/readings/:id', requireToken, (req, res, next) => {
          if(user.readings[x]._id == req.params.id)
          {
            console.log('YES!!')
+           console.log(user.readings[x])
            res.status(200).send( {reading: user.readings[x]} )
+
          }
         }
       })
@@ -103,46 +94,46 @@ router.post('/readings', requireToken, (req, res, next) => {
 
 // UPDATE
 // PATCH /readings/5a7db6c74d55bc51bdf39793
-router.patch('/readings/:id', requireToken, removeBlanks, (req, res, next) => {
-  // if the client attempts to change the `owner` property by including a new
-  // owner, prevent that by deleting that key/value pair
-  // console.log(req)
-  delete req.body.id
-  // console.log('req.body= ', req.body)
-
-  Reading.findById(req.params.id)
-    .then(handle404)
-    .then(reading => {
-      // pass the `req` object and the Mongoose record to `requireOwnership`
-      // it will throw an error if the current user isn't the owner
-      //requireOwnership(req, reading)
-
-      // pass the result of Mongoose's `.update` to the next `.then`
-      return reading.updateOne(req.body)
+router.patch('/readings/:id', requireToken, (req, res, next) => {
+  req.body.owner = req.user._id
+  console.log('router.delete(/readings/:ID)')
+  User.findById(req.user._id)
+    .then(user => {
+      console.log('Update req.body=', req.body)
+      console.log('user.readings=', user.readings)
+      for(x = 0; x < user.readings.length; x++){
+        if(user.readings[x]._id == req.body.id){
+          console.log('*******Found it ******')
+          user.readings[x].systolic = req.body.systolic
+          user.readings[x].diastolic = req.body.diastolic
+          user.readings[x].pulse = req.body.pulse
+        }
+      }
+      console.log('Modified-user.readings=', user.readings)
+      user.save(err => {
+        if(!err) {
+          res.status(204).json({ reading: req.params.id })
+        }
+      })
     })
-    // if that succeeded, return 204 and no JSON
-    .then(() => res.sendStatus(204))
-    // if an error occurs, pass it to the handler
     .catch(next)
 })
+
 
 // DESTROY
 // DELETE /readings/5a7db6c74d55bc51bdf39793
 router.delete('/readings/:id', requireToken, (req, res, next) => {
-  console.log('router.delete(/readings/:id)')
-  console.log(req.params.id)
-
-  Reading.findById(req.params.id)
-    .then(handle404)
-    .then(reading => {
-      // throw an error if current user doesn't own `reading`
-      // requireOwnership(req, reading)
-      // delete the reading ONLY IF the above didn't throw
-      reading.deleteOne()
+  req.body.owner = req.user._id
+  console.log('router.delete(/readings/:ID)')
+  User.findById(req.user._id)
+    .then(user => {
+      user.readings.pull(req.params.id)
+      user.save(err => {
+        if(!err) {
+          res.status(204).json({ reading: req.params.id })
+        }
+      })
     })
-    // send back 204 and no content if the deletion succeeded
-    .then(() => res.sendStatus(204))
-    // if an error occurs, pass it to the handler
     .catch(next)
 })
 
