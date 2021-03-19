@@ -49,16 +49,37 @@ router.get('/readings', requireToken, (req, res, next) => {
 
 // SHOW
 // GET /readings/5a7db6c74d55bc51bdf39793
+// router.get('/readings/:id', requireToken, (req, res, next) => {
+//   req.body.owner = req.user._id
+//   // req.params.id will be set based on the `:id` in the route
+//   Reading.findById(req.params.id)
+//     .then(handle404)
+//     // if `findById` is succesful, respond with 200 and "reading" JSON
+//     .then(reading => res.status(200).json({ reading: reading.toObject() }))
+//     // if an error occurs, pass it to the handler
+//     .catch(next)
+// })
+
 router.get('/readings/:id', requireToken, (req, res, next) => {
   req.body.owner = req.user._id
-  // req.params.id will be set based on the `:id` in the route
-  Reading.findById(req.params.id)
-    .then(handle404)
-    // if `findById` is succesful, respond with 200 and "reading" JSON
-    .then(reading => res.status(200).json({ reading: reading.toObject() }))
+  // console.log('router.get(/readings/:ID)')
+  // console.log(req.user)
+  User.findById(req.user._id)
+    .then(user => {
+       for(x = 0; x < user.readings.length; x++) {
+         if(user.readings[x]._id == req.params.id)
+         {
+           console.log('YES!!')
+           res.status(200).send( {reading: user.readings[x]} )
+         }
+        }
+      })
+    // respond with status 200 and JSON of the readings
+    //.then(readings => res.status(200).json({ readings: readings }))
     // if an error occurs, pass it to the handler
     .catch(next)
 })
+
 
 // CREATE
 // POST /readings
@@ -94,7 +115,7 @@ router.patch('/readings/:id', requireToken, removeBlanks, (req, res, next) => {
     .then(reading => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
-      requireOwnership(req, reading)
+      //requireOwnership(req, reading)
 
       // pass the result of Mongoose's `.update` to the next `.then`
       return reading.updateOne(req.body)
@@ -108,11 +129,14 @@ router.patch('/readings/:id', requireToken, removeBlanks, (req, res, next) => {
 // DESTROY
 // DELETE /readings/5a7db6c74d55bc51bdf39793
 router.delete('/readings/:id', requireToken, (req, res, next) => {
+  console.log('router.delete(/readings/:id)')
+  console.log(req.params.id)
+
   Reading.findById(req.params.id)
     .then(handle404)
     .then(reading => {
       // throw an error if current user doesn't own `reading`
-      requireOwnership(req, reading)
+      // requireOwnership(req, reading)
       // delete the reading ONLY IF the above didn't throw
       reading.deleteOne()
     })
