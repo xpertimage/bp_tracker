@@ -32,12 +32,12 @@ As a signed in user I should be able to update a previous reading
 
 As a signed in user I should be able to delete a reading.
 
-![Wireframes](puplic/WireDiagram/WireDiagrams-Start.jpg)
-![Wireframes](puplic/WireDiagram/WireDiagrams-SignIn.jpg)
-![Wireframes](puplic/WireDiagram/WireDiagrams-FindOne.jpg)
-![Wireframes](puplic/WireDiagram/WireDiagrams-DeleteOne.jpg)
-![Wireframes](puplic/WireDiagram/WireDiagrams-ChgPass.jpg)
+![](puplic/WireDiagram/WireDiagrams-Start.jpg)
+![](puplic/WireDiagram/WireDiagrams-SignIn.jpg)
+![](puplic/WireDiagram/WireDiagrams-FindOne.jpg)
+![](puplic/WireDiagram/WireDiagrams-DeleteOne.jpg)
+![](puplic/WireDiagram/WireDiagrams-ChgPass.jpg)
 
 [Client Repo](https://github.com/xpertimage/bp_tracker_client)
 
-![Entity Relationship Diagram](public/ERD.jpg)
+![](public/ERD.jpg)
