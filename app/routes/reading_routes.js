@@ -35,7 +35,7 @@ router.get('/readings', requireToken, (req, res, next) => {
 
   User.findById(req.user._id)
     .then(user => {
-      console.log(User)
+      // console.log(User)
       // `readings` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one
@@ -58,8 +58,8 @@ router.get('/readings/:id', requireToken, (req, res, next) => {
        for(x = 0; x < user.readings.length; x++) {
          if(user.readings[x]._id == req.params.id)
          {
-           console.log('YES!!')
-           console.log(user.readings[x])
+           // console.log('YES!!')
+           // console.log(user.readings[x])
            res.status(200).send( {reading: user.readings[x]} )
 
          }
@@ -78,7 +78,7 @@ router.post('/readings', requireToken, (req, res, next) => {
   // set owner of new reading to be current user
 
   req.body.owner = req.user._id
-  console.log('What is req.body: ', req.body)
+  // console.log('What is req.body: ', req.body)
   // First find the signedIn user's document
   User.findById(req.user._id)
     .then(user => {
@@ -96,20 +96,20 @@ router.post('/readings', requireToken, (req, res, next) => {
 // PATCH /readings/5a7db6c74d55bc51bdf39793
 router.patch('/readings/:id', requireToken, (req, res, next) => {
   req.body.owner = req.user._id
-  console.log('router.delete(/readings/:ID)')
+  // console.log('router.delete(/readings/:ID)')
   User.findById(req.user._id)
     .then(user => {
-      console.log('Update req.body=', req.body)
-      console.log('user.readings=', user.readings)
+      // console.log('Update req.body=', req.body)
+      // console.log('user.readings=', user.readings)
       for(x = 0; x < user.readings.length; x++){
         if(user.readings[x]._id == req.body.id){
-          console.log('*******Found it ******')
+          // console.log('*******Found it ******')
           user.readings[x].systolic = req.body.systolic
           user.readings[x].diastolic = req.body.diastolic
           user.readings[x].pulse = req.body.pulse
         }
       }
-      console.log('Modified-user.readings=', user.readings)
+      // console.log('Modified-user.readings=', user.readings)
       user.save(err => {
         if(!err) {
           res.status(204).json({ reading: req.params.id })
@@ -124,7 +124,7 @@ router.patch('/readings/:id', requireToken, (req, res, next) => {
 // DELETE /readings/5a7db6c74d55bc51bdf39793
 router.delete('/readings/:id', requireToken, (req, res, next) => {
   req.body.owner = req.user._id
-  console.log('router.delete(/readings/:ID)')
+  // console.log('router.delete(/readings/:ID)')
   User.findById(req.user._id)
     .then(user => {
       user.readings.pull(req.params.id)
